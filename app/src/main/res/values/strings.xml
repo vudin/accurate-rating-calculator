@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Accurate Rating Calculator</string>
+    <string name="ratings_history">Ratings History</string>
+    <string name="calculate">Calculate</string>
+    <string name="error_message">Please fill all the ratings</string>
+    <string name="switch_views">Switch Views</string>
+    <string name="latest_average_rating">Latest Average Rating: %s</string>
+    <string name="delete_history">Delete History</string>
+
+</resources>
