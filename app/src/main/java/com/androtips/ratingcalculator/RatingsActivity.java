@@ -45,6 +45,7 @@ public class RatingsActivity extends Activity {
     private TextView result;
     private ListView historyList;
     private ArrayList<RatingRecord> ratingsHistory = new ArrayList<RatingRecord>();
+    private RatingsHistoryAdapter historyAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +71,8 @@ public class RatingsActivity extends Activity {
     }
 
     private void populateListView() {
-        historyList.setAdapter(new RatingsHistoryAdapter(this, ratingsHistory));
+        historyAdapter = new RatingsHistoryAdapter(this, ratingsHistory);
+        historyList.setAdapter(historyAdapter);
     }
 
     @Override
@@ -184,6 +186,7 @@ public class RatingsActivity extends Activity {
             resultAndHistory.setVisibility(View.VISIBLE);
         }
         historyList.smoothScrollToPosition(0);
+        historyAdapter.setItems(ratingsHistory);
         result.setText("");
         getActionBar().setTitle(R.string.ratings_history);
         if (menu != null) {
