@@ -1,15 +1,10 @@
 package com.androtips.ratingcalculator;
 
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Date;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -26,6 +21,12 @@ import android.widget.Toast;
 
 import com.androtips.ratingcalculator.anim.Animations;
 
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Date;
+
 public class RatingsActivity extends Activity {
     private static final String RATING_CALCULATOR = "RATING_CALCULATOR";
 
@@ -41,7 +42,6 @@ public class RatingsActivity extends Activity {
     private EditText three;
     private EditText two;
     private EditText one;
-    private Button calculate;
     private TextView result;
     private ListView historyList;
     private ArrayList<RatingRecord> ratingsHistory = new ArrayList<RatingRecord>();
@@ -60,7 +60,7 @@ public class RatingsActivity extends Activity {
         three = (EditText) findViewById(R.id.three_et);
         two = (EditText) findViewById(R.id.two_et);
         one = (EditText) findViewById(R.id.one_et);
-        calculate = (Button) findViewById(R.id.calculate);
+        Button calculate = (Button) findViewById(R.id.calculate);
         calculate.setOnClickListener(new CalculateClickListener());
         result = (TextView) findViewById(R.id.result);
         historyList = (ListView) findViewById(R.id.history);
@@ -79,29 +79,36 @@ public class RatingsActivity extends Activity {
     public boolean onCreateOptionsMenu(final Menu menu) {
         this.menu = menu;
         getMenuInflater().inflate(R.menu.activity_ratings, menu);
+        if (isLandscapeOrTablet()) {
+            menu.findItem(R.id.switch_views).setVisible(false);
+            menu.findItem(R.id.delete_history).setVisible(true);
+        } else {
+            menu.findItem(R.id.switch_views).setVisible(true);
+            menu.findItem(R.id.delete_history).setVisible(false);
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
-        case R.id.switch_views:
-            if (calculator.getVisibility() == View.VISIBLE) {
-                showResultAndHistory();
-            } else {
-                showCalculator(true);
-            }
-            break;
-        case R.id.delete_history:
-            deleteHistory();
-            break;
+            case R.id.switch_views:
+                if (calculator.getVisibility() == View.VISIBLE) {
+                    showResultAndHistory();
+                } else {
+                    showCalculator(true);
+                }
+                break;
+            case R.id.delete_history:
+                deleteHistory();
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
 
     private void deleteHistory() {
         SharedPreferences preferences = getSharedPreferences(SHARED_PREFS_FILE, 0);
-        preferences.edit().remove(RATINGS).commit();
+        preferences.edit().remove(RATINGS).apply();
         ratingsHistory = new ArrayList<RatingRecord>();
         populateListView();
         showCalculator(true);
@@ -122,8 +129,7 @@ public class RatingsActivity extends Activity {
     }
 
     private double calculateAverageRating(String fiveStars, String fourStars, String threeStars, String twoStars, String oneStar) {
-        double average = ((Double.parseDouble(fiveStars) * 5) + (Double.parseDouble(fourStars) * 4) + (Double.parseDouble(threeStars) * 3) + (Double.parseDouble(twoStars) * 2) + (Double.parseDouble(oneStar))) / (Double.parseDouble(fiveStars) + Double.parseDouble(fourStars) + Double.parseDouble(threeStars) + Double.parseDouble(twoStars) + Double.parseDouble(oneStar));
-        return average;
+        return ((Double.parseDouble(fiveStars) * 5) + (Double.parseDouble(fourStars) * 4) + (Double.parseDouble(threeStars) * 3) + (Double.parseDouble(twoStars) * 2) + (Double.parseDouble(oneStar))) / (Double.parseDouble(fiveStars) + Double.parseDouble(fourStars) + Double.parseDouble(threeStars) + Double.parseDouble(twoStars) + Double.parseDouble(oneStar));
     }
 
     private void hideSoftKeyboard() {
@@ -151,7 +157,7 @@ public class RatingsActivity extends Activity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        editor.commit();
+        editor.apply();
     }
 
     private void clearValues() {
@@ -164,35 +170,47 @@ public class RatingsActivity extends Activity {
 
     private void showCalculator(boolean animate) {
         clearValues();
-        if (animate && ratingsHistory != null && !ratingsHistory.isEmpty()) {
-            Animations.rotate3d(resultAndHistory, calculator);
-        } else {
-            calculator.setVisibility(View.VISIBLE);
-            resultAndHistory.setVisibility(View.GONE);
-        }
-        getActionBar().setTitle(R.string.app_name);
-        if (menu != null) {
-            menu.findItem(R.id.switch_views).setIcon(R.drawable.ic_action_calc_to_list);
-            menu.findItem(R.id.delete_history).setVisible(false);
+        if (!isLandscapeOrTablet()) {
+            if (animate && ratingsHistory != null && !ratingsHistory.isEmpty()) {
+                Animations.rotate3d(resultAndHistory, calculator);
+            } else {
+                calculator.setVisibility(View.VISIBLE);
+                resultAndHistory.setVisibility(View.GONE);
+            }
+            getActionBar().setTitle(R.string.app_name);
+            if (menu != null) {
+                menu.findItem(R.id.switch_views).setIcon(R.drawable.ic_action_calc_to_list);
+                menu.findItem(R.id.delete_history).setVisible(false);
+            }
         }
     }
 
     private void showResultAndHistory() {
         hideSoftKeyboard();
-        if (ratingsHistory != null && !ratingsHistory.isEmpty()) {
-            Animations.rotate3d(calculator, resultAndHistory);
-        } else {
-            calculator.setVisibility(View.GONE);
-            resultAndHistory.setVisibility(View.VISIBLE);
+        if (!isLandscapeOrTablet()) {
+            if (ratingsHistory != null && !ratingsHistory.isEmpty()) {
+                Animations.rotate3d(calculator, resultAndHistory);
+            } else {
+                calculator.setVisibility(View.GONE);
+                resultAndHistory.setVisibility(View.VISIBLE);
+            }
+            getActionBar().setTitle(R.string.ratings_history);
+            if (menu != null) {
+                menu.findItem(R.id.switch_views).setIcon(R.drawable.ic_action_list_to_calc);
+                menu.findItem(R.id.delete_history).setVisible(ratingsHistory != null && !ratingsHistory.isEmpty());
+            }
         }
+        updateAdapter();
+        result.setText("");
+    }
+
+    private void updateAdapter() {
         historyList.smoothScrollToPosition(0);
         historyAdapter.setItems(ratingsHistory);
-        result.setText("");
-        getActionBar().setTitle(R.string.ratings_history);
-        if (menu != null) {
-            menu.findItem(R.id.switch_views).setIcon(R.drawable.ic_action_list_to_calc);
-            menu.findItem(R.id.delete_history).setVisible(ratingsHistory != null && !ratingsHistory.isEmpty());
-        }
+    }
+
+    private boolean isLandscapeOrTablet() {
+        return getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE || getResources().getBoolean(R.bool.is_tablet);
     }
 
     private final class CalculateClickListener implements OnClickListener {
