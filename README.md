@@ -5,11 +5,6 @@ A simple and more accurate calculator for Play Store ratings
 
 <a href="https://play.google.com/store/apps/details?id=com.androtips.ratingcalculator">
   <img alt="Get it on Google Play"
-       src="http://steverichey.github.io/google-play-badge-svg/img/en_get.svg" />
+       src="https://developer.android.com/images/brand/en_generic_rgb_wo_60.png" />
 </a>
 
-
-
-
-
-[Google Play Badge] (https://github.com/steverichey/google-play-badge-svg)
